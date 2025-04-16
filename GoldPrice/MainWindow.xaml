@@ -1,0 +1,44 @@
+﻿<Window x:Class="GoldPrice.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="CurrencyDisplay" 
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        MouseLeftButtonDown="Window_MouseLeftButtonDown"
+        Height="100" Width="300">
+    <Grid>
+        <!-- 主金额 -->
+        <TextBlock x:Name="AmountText"
+                   HorizontalAlignment="Center"
+                   VerticalAlignment="Center"
+                   FontSize="32"
+                   Foreground="Red"
+                   Text="Loading...">
+            <TextBlock.Effect>
+                <DropShadowEffect Color="Black" 
+                                  Opacity="0.5"
+                                  BlurRadius="10"
+                                  ShadowDepth="2"/>
+            </TextBlock.Effect>
+        </TextBlock>
+
+        <!-- 右下角小数字 -->
+        <TextBlock x:Name="SubAmountText"
+                   HorizontalAlignment="Right"
+                   VerticalAlignment="Bottom"
+                   Margin="0,0,32,32"
+                   FontSize="20"
+                   Foreground="Red"
+                   Text=" ">
+            <TextBlock.Effect>
+                <DropShadowEffect Color="Black"
+                                  Opacity="0.5"
+                                  BlurRadius="5"
+                                  ShadowDepth="1"/>
+            </TextBlock.Effect>
+        </TextBlock>
+    </Grid>
+</Window>
