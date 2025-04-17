@@ -7,6 +7,7 @@ using Application = System.Windows.Application;
 using NotifyIcon = System.Windows.Forms.NotifyIcon;
 using System.IO;
 using GoldPrice.Model;
+using System.Globalization;
 
 namespace GoldPrice
 {
@@ -133,7 +134,7 @@ namespace GoldPrice
                             }
                             //upAndDownAmt = upAndDownAmt.Replace("+", "↑");
                             //upAndDownAmt = upAndDownAmt.Replace("-", "↓");
-                            SubAmountText.Text = upAndDownAmt;
+                            SubAmountText.Text = ConvertToAmountString(upAndDownAmt);
 
                             // 检查阈值
                             if (Convert.ToDecimal(data.resultData.datas.price) >= _upperThreshold)
@@ -319,6 +320,20 @@ namespace GoldPrice
                     _notifyIcon.ShowBalloonTip(1500, "设置金价通知值", $"已更新值：上限 {_upperThreshold}，下限 {_lowerThreshold}", ToolTipIcon.Info);
                 }
             });
+        }
+
+        private static string ConvertToAmountString(string input)
+        {
+            // 尝试解析输入字符串为decimal，支持货币符号和千位分隔符
+            if (decimal.TryParse(input, NumberStyles.Currency | NumberStyles.Number, CultureInfo.CurrentCulture, out decimal result))
+            {
+                // 格式化为两位小数，使用不变文化确保小数点格式为"."
+                return result.ToString("F2", CultureInfo.InvariantCulture);
+            }
+            else
+            {
+                return input;
+            }
         }
     }
 }
