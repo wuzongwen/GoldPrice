@@ -113,7 +113,7 @@ namespace GoldPrice
 
                         Dispatcher.Invoke(() =>
                         {
-                            AmountText.Text = data.resultData.datas.price;
+                            AmountText.Text = ConvertToAmountString(data.resultData.datas.price);
                             var upAndDownAmt = data.resultData.datas.upAndDownAmt;
                             if (data.resultData.datas.upAndDownAmt.StartsWith("+"))
                             {
@@ -134,7 +134,7 @@ namespace GoldPrice
                             }
                             //upAndDownAmt = upAndDownAmt.Replace("+", "↑");
                             //upAndDownAmt = upAndDownAmt.Replace("-", "↓");
-                            SubAmountText.Text = ConvertToAmountString(upAndDownAmt);
+                            SubAmountText.Text = upAndDownAmt;
 
                             // 检查阈值
                             if (Convert.ToDecimal(data.resultData.datas.price) >= _upperThreshold)
