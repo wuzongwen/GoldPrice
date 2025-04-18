@@ -284,18 +284,18 @@ namespace GoldPrice
         {
             if (!File.Exists(iniFilePath))
             {
+                _upperThreshold = 800;
+                _lowerThreshold = 700;
+                SaveThresholdToIni();
+            }
+            else
+            {
                 string upper = IniFile.ReadValue(iniFilePath, "Notify", "GPUpper", "800.00");
                 string lower = IniFile.ReadValue(iniFilePath, "Notify", "GPLower", "700.00");
-                SaveThresholdToIni();
                 if (!decimal.TryParse(upper, out _upperThreshold))
                     _upperThreshold = 800M;
                 if (!decimal.TryParse(lower, out _lowerThreshold))
                     _lowerThreshold = 700M;
-            }
-            else
-            {
-                _upperThreshold = 800;
-                _lowerThreshold = 700;
             }
         }
 
