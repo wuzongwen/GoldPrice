@@ -8,6 +8,9 @@ using NotifyIcon = System.Windows.Forms.NotifyIcon;
 using System.IO;
 using GoldPrice.Model;
 using System.Globalization;
+using HtmlAgilityPack;
+using HtmlDocument = HtmlAgilityPack.HtmlDocument;
+using Microsoft.Playwright;
 
 namespace GoldPrice
 {
@@ -19,6 +22,7 @@ namespace GoldPrice
         // 阈值字段
         private decimal _upperThreshold; // 上限阈值
         private decimal _lowerThreshold; // 下限阈值
+        private string _notifyPath;//通知地址
 
         // 配置文件路径
         private readonly string iniFilePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "config.ini");
@@ -30,7 +34,7 @@ namespace GoldPrice
             InitializeComponent();
             InitializeTrayIcon();
 
-            // 加载阈值（如果 ini 文件不存在，则使用默认值，比如上限 800，下限 700）
+            // 加载配置（如果 ini 文件不存在，则使用默认值）
             LoadThresholdFromIni();
 
             // 初始化定时器
@@ -72,6 +76,11 @@ namespace GoldPrice
             thresholdMenuItem.Click += OnSetThresholdClick;
             contextMenu.Items.Add(thresholdMenuItem);
 
+            // 添加设置通知地址菜单项
+            var notifyPathMenuItem = new ToolStripMenuItem("设置通知地址");
+            notifyPathMenuItem.Click += OnSetNofityPathClick;
+            contextMenu.Items.Add(notifyPathMenuItem);
+
             // 添加“修改 Cookie”菜单项
             //var cookieMenuItem = new ToolStripMenuItem("修改 Cookie");
             //cookieMenuItem.Click += OnModifyCookieClick;
@@ -86,6 +95,8 @@ namespace GoldPrice
         {
             try
             {
+                bool needNotify = false;
+                string message = string.Empty;
                 // 可以通过此 handler 创建 HttpClient 实例
                 using (HttpClient client = new HttpClient())
                 {
@@ -132,25 +143,35 @@ namespace GoldPrice
                             {
                                 AmountText.Foreground = System.Windows.Media.Brushes.Green;
                             }
-                            //upAndDownAmt = upAndDownAmt.Replace("+", "↑");
-                            //upAndDownAmt = upAndDownAmt.Replace("-", "↓");
                             SubAmountText.Text = upAndDownAmt;
 
                             // 检查阈值
                             if (Convert.ToDecimal(data.resultData.datas.price) >= _upperThreshold)
                             {
-                                _notifyIcon.ShowBalloonTip(3000, "价格警告", $"当前价格 {data.resultData.datas.price} 超过上限 {_upperThreshold}", ToolTipIcon.Warning);
+                                needNotify = true;
+                                message = $"当前价格 {data.resultData.datas.price} 超过上限 {_upperThreshold}";
                             }
                             else if (Convert.ToDecimal(data.resultData.datas.price) <= _lowerThreshold)
                             {
-                                _notifyIcon.ShowBalloonTip(3000, "价格警告", $"当前价格 {data.resultData.datas.price} 低于下限 {_lowerThreshold}", ToolTipIcon.Warning);
+                                needNotify = true;
+                                message = $"当前价格 {data.resultData.datas.price} 低于下限 {_lowerThreshold}";
                             }
                         });
-
                     }
                     catch (HttpRequestException ex)
                     {
                         Console.WriteLine("请求出错：" + ex.Message);
+                    }
+                }
+
+                if (needNotify)
+                {
+                    _notifyIcon.ShowBalloonTip(3000, "价格警告", message, ToolTipIcon.Warning);
+
+                    using (HttpClient client = new HttpClient())
+                    {
+                        client.Timeout = TimeSpan.FromSeconds(2);
+                        await client.GetAsync($"{_notifyPath}{message}");
                     }
                 }
             }
@@ -214,7 +235,6 @@ namespace GoldPrice
 
             return menuItem;
         }
-
 
         /// <summary>
         /// 当点击“修改 Cookie”菜单项时调用，此方法弹出输入框让用户输入新的 Cookie 字符串。
@@ -286,12 +306,14 @@ namespace GoldPrice
             {
                 _upperThreshold = 800;
                 _lowerThreshold = 700;
+                _notifyPath = "https://api.day.app/token/";
                 SaveThresholdToIni();
             }
             else
             {
                 string upper = IniFile.ReadValue(iniFilePath, "Notify", "GPUpper", "800.00");
                 string lower = IniFile.ReadValue(iniFilePath, "Notify", "GPLower", "700.00");
+                _notifyPath = IniFile.ReadValue(iniFilePath, "Notify", "NotifyPath", "https://api.day.app/token/");
                 if (!decimal.TryParse(upper, out _upperThreshold))
                     _upperThreshold = 800M;
                 if (!decimal.TryParse(lower, out _lowerThreshold))
@@ -303,6 +325,7 @@ namespace GoldPrice
         {
             IniFile.WriteValue(iniFilePath, "Notify", "GPUpper", _upperThreshold.ToString());
             IniFile.WriteValue(iniFilePath, "Notify", "GPLower", _lowerThreshold.ToString());
+            IniFile.WriteValue(iniFilePath, "Notify", "NotifyPath", _notifyPath);
         }
 
         private void OnSetThresholdClick(object sender, EventArgs e)
@@ -322,6 +345,22 @@ namespace GoldPrice
             });
         }
 
+        private void OnSetNofityPathClick(object sender, EventArgs e)
+        {
+            Application.Current.Dispatcher.Invoke(() =>
+            {
+                var dialog = new NotifySettingWindow(_notifyPath);
+                dialog.Owner = this;
+                bool? result = dialog.ShowDialog();
+                if (result == true)
+                {
+                    _notifyPath = dialog.NotifyPath;
+                    SaveThresholdToIni();
+                    _notifyIcon.ShowBalloonTip(1500, "设置通知地址", $"已更新通知地址：{_notifyPath}", ToolTipIcon.Info);
+                }
+            });
+        }
+
         private static string ConvertToAmountString(string input)
         {
             // 尝试解析输入字符串为decimal，支持货币符号和千位分隔符
@@ -333,6 +372,45 @@ namespace GoldPrice
             else
             {
                 return input;
+            }
+        }
+
+        /// <summary>
+        /// 获取国际金价
+        /// </summary>
+        /// <returns></returns>
+        static async Task<(string priceText, string changeAmt,string changePct)> GetXAUUSD() 
+        {
+            try
+            {
+                using var pw = await Playwright.CreateAsync();
+                await using var browser =
+                    await pw.Chromium.LaunchAsync(new BrowserTypeLaunchOptions
+                    { Headless = true });
+                var page = await browser.NewPageAsync();
+                await page.GotoAsync(
+                  "https://www.tradingview.com/symbols/XAUUSD/?exchange=OANDA"
+                );
+
+                // 自动等待并获取文本
+                var priceText = await page.TextContentAsync(
+                    "div.js-symbol-header-ticker span.js-symbol-last"
+                );
+                var changeAmt = await page.TextContentAsync(
+                    "div.js-symbol-header-ticker div.js-symbol-change-direction span:nth-child(1)"
+                );
+                var changePct = await page.TextContentAsync(
+                    "div.js-symbol-header-ticker div.js-symbol-change-direction span:nth-child(2)"
+                );
+
+                await browser.CloseAsync();
+
+                return (priceText, changeAmt, changePct);
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
     }
