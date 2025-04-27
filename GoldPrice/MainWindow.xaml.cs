@@ -8,8 +8,6 @@ using NotifyIcon = System.Windows.Forms.NotifyIcon;
 using System.IO;
 using GoldPrice.Model;
 using System.Globalization;
-using HtmlAgilityPack;
-using HtmlDocument = HtmlAgilityPack.HtmlDocument;
 using Microsoft.Playwright;
 
 namespace GoldPrice

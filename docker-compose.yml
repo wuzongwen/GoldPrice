@@ -1,0 +1,6 @@
+services:
+  goldprice.web:
+    image: ${DOCKER_REGISTRY-}goldpriceweb
+    build:
+      context: .
+      dockerfile: GoldPrice.Web/Dockerfile

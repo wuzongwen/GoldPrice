@@ -1,0 +1,63 @@
+﻿@page "/counter"
+
+<PageTitle>Counter</PageTitle>
+
+<EditForm Model="settings"
+          OnValidSubmit="IncrementCount"
+          FormName="GoldPriceSettingsForm">
+    <DataAnnotationsValidator />
+    <ValidationSummary class="text-danger mb-3" />
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label">上限阈值：</label>
+            <InputNumber @bind-Value="settings.UpperThreshold"
+                         @bind-Value:event="oninput"
+                         class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">下限阈值：</label>
+            <InputNumber @bind-Value="settings.LowerThreshold"
+                         @bind-Value:event="oninput"
+                         class="form-control" />
+        </div>
+    </div>
+
+    <div class="row mb-3">
+        <div class="col-md-6">
+            <label class="form-label">通知地址：</label>
+            <InputText @bind-Value="settings.NotifyPath"
+                       @bind-Value:event="oninput"
+                       class="form-control" />
+        </div>
+        <div class="col-md-6">
+            <label class="form-label">更新间隔（秒）：</label>
+            <InputNumber @bind-Value="settings.UpdateInterval"
+                         @bind-Value:event="oninput"
+                         class="form-control" />
+        </div>
+    </div>
+</EditForm>
+
+@code {
+    private GoldPriceSettings? settings;
+
+    private void IncrementCount()
+    {
+        if (settings is not null)
+        {
+        }
+    }
+
+    public class GoldPriceSettings
+    {
+        public int Id { get; set; }
+        public decimal UpperThreshold { get; set; }
+
+        public decimal LowerThreshold { get; set; }
+
+        public string NotifyPath { get; set; }
+
+        public int UpdateInterval { get; set; }
+    }
+}

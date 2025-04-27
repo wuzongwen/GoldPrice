@@ -1,0 +1,113 @@
+﻿@page "/"
+@inject AppDbContext DbContext
+
+@if (settings == null)
+{
+    <div class="text-center">
+        <div class="spinner-border" role="status">
+            <span class="visually-hidden">加载中…</span>
+        </div>
+    </div>
+}
+else
+{
+    <div class="container mt-4">
+        <div class="card">
+            <div class="card-body">
+                <EditForm Model="settings"
+                          OnValidSubmit="SaveSettings"
+                          FormName="GoldPriceSettingsForm">
+                    <DataAnnotationsValidator />
+                    <ValidationSummary class="text-danger mb-3" />
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">上限阈值：</label>
+                            <InputNumber @bind-Value="settings.UpperThreshold"
+                                         class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">下限阈值：</label>
+                            <InputNumber @bind-Value="settings.LowerThreshold"
+                                         class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label">通知地址：</label>
+                            <InputText @bind-Value="settings.NotifyPath"
+                                       class="form-control" />
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">更新间隔（秒）：</label>
+                            <InputNumber @bind-Value="settings.UpdateInterval"
+                                         class="form-control" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary mt-3">
+                        保存设置
+                    </button>
+                </EditForm>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private GoldPriceSettings? settings;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // 从数据库加载实体，但不跟踪
+            var dbSettings = await DbContext.GoldPriceSettings
+                .AsNoTracking()
+                .FirstOrDefaultAsync();
+
+            // 创建新对象副本（避免跟踪干扰）
+            settings = dbSettings != null ?
+                new GoldPriceSettings
+                {
+                    Id = dbSettings.Id,
+                    UpperThreshold = dbSettings.UpperThreshold,
+                    LowerThreshold = dbSettings.LowerThreshold,
+                    NotifyPath = dbSettings.NotifyPath,
+                    UpdateInterval = dbSettings.UpdateInterval
+                }
+                : new GoldPriceSettings(); // 处理空记录情况
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Database error: {ex.Message}");
+        }
+    }
+
+    private async Task SaveSettings()
+    {
+        if (settings != null)
+        {
+            // 查找已跟踪的实体（如果存在）
+            var existing = await DbContext.GoldPriceSettings.FindAsync(settings.Id);
+
+            if (existing != null)
+            {
+                // 将修改后的值复制到已跟踪的实体
+                DbContext.Entry(existing).CurrentValues.SetValues(settings);
+            }
+            else
+            {
+                // 插入新记录
+                DbContext.Add(settings);
+            }
+
+            // 显式保存更改
+            await DbContext.SaveChangesAsync();
+
+            // 重新加载数据以确保获取最新状态（可选）
+            DbContext.Entry(existing ?? settings).Reload();
+        }
+    }
+}
