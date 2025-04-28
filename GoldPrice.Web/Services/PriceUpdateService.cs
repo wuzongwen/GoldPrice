@@ -58,6 +58,12 @@ namespace GoldPrice.Web.Services
                 return;
             }
 
+            // 检查是否启用通知
+            if (!settings.EnableNotification) 
+            {
+                return;
+            }
+
             decimal upperThreshold = settings.UpperThreshold;
             decimal lowerThreshold = settings.LowerThreshold;
             string notifyPath = settings.NotifyPath;

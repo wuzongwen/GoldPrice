@@ -1,6 +1,11 @@
 services:
   goldprice.web:
-    image: ${DOCKER_REGISTRY-}goldpriceweb
     build:
       context: .
       dockerfile: GoldPrice.Web/Dockerfile
+    ports:
+      - "8333:8080"
+    volumes:
+      - ./data:/app/data:rw,Z
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production

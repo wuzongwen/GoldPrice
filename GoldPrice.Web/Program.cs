@@ -5,9 +5,18 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+var dbPath = Environment.GetEnvironmentVariable("DB_PATH");
+if (string.IsNullOrWhiteSpace(dbPath))
+{
+    dbPath = builder.Configuration.GetConnectionString("Sqlite");
+}
+else 
+{
+    dbPath = $"Data Source={dbPath}";
+}
 // 添加 SQLite 数据库支持
 builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseSqlite("Data Source=goldprice.db"));
+    options.UseSqlite(dbPath));
 
 // 添加后台服务
 builder.Services.AddHostedService<PriceUpdateService>();
