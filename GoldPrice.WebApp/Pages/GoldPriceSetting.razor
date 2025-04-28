@@ -1,0 +1,116 @@
+﻿@namespace GoldPrice.WebApp.Pages
+@using System.ComponentModel.DataAnnotations;
+@using System.Text.Json;
+@using System.ComponentModel
+@using GoldPrice.WebApp.Data
+@page "/"
+
+<PageContainer Title="金价通知配置">
+    <ChildContent>
+        <Card>
+            <Form Model="@_model"
+                  Style="margin-top: 8px;"
+                  OnFinish="HandleSubmit">
+                <FormItem Label="上限阈值" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
+                    <AntDesign.InputNumber Placeholder="上限阈值" Step="0.01M" Min="0.01M" @bind-Value="@context.UpperThreshold" />
+                </FormItem>
+                <FormItem Label="下限阈值" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
+                    <AntDesign.InputNumber Placeholder="下限阈值" Step="0.01M" Min="0.01M" @bind-Value="@context.LowerThreshold" />
+                </FormItem>
+                <FormItem Label="更新间隔" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
+                    <AntDesign.InputNumber Placeholder="下限阈值" Min="1" @bind-Value="@context.UpdateInterval" />
+                </FormItem>
+                <FormItem Label="是否通知" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
+                    <AntDesign.Switch CheckedChildren="是" UnCheckedChildren="否" @bind-Value="@context.EnableNotification" />
+                </FormItem>
+                <FormItem Label="通知时段" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
+                    <TimePicker TValue="DateTime" Picker="@DatePickerType.Time" @bind-Value="@context.StartTime"  />
+                    -
+                    <TimePicker TValue="DateTime" Picker="@DatePickerType.Time" @bind-Value="@context.EndTime"   />
+                </FormItem>
+                <FormItem Label="通知地址" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
+                    <Input Placeholder="通知地址" @bind-Value="@context.NotifyPath" />
+                </FormItem>
+                <FormItem Label="通知铃声" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
+                    <EnumSelect TEnum="Sound"/>
+                </FormItem>
+                <FormItem Label=" " Style="margin-top:32px" WrapperCol="_submitFormLayout.WrapperCol">
+                    <Button Type="@ButtonType.Primary" HtmlType="submit">
+                        保存
+                    </Button>
+                </FormItem>
+            </Form>
+        </Card>
+    </ChildContent>
+</PageContainer>
+<Modal Title="@("Title")"
+       Visible="@_visible"
+       OnOk="@HandleOk"
+       OnCancel="@HandleCancel"
+       ConfirmLoading="@_confirmLoading">
+    <p>@_modalText</p>
+</Modal>
+@code{
+    bool _visible = false;
+    bool _confirmLoading = false;
+    string _modalText = "Content of the modal";
+    public GoldPriceSettings? settings { get; set; }
+
+    private void ShowModal()
+    {
+        _visible = true;
+    }
+
+
+    private async Task HandleOk(MouseEventArgs e)
+    {
+        _modalText = "The modal will be closed after two seconds";
+        _confirmLoading = true;
+        StateHasChanged();
+        await Task.Delay(2000);
+        _visible = false;
+        _confirmLoading = false;
+    }
+
+    private void HandleCancel(MouseEventArgs e)
+    {
+        Console.WriteLine("Clicked cancel button");
+        _visible = false;
+    }
+
+    private enum Sound
+    {
+        alarm,
+        anticipate,
+        bell,
+        birdsong,
+        bloom,
+        calypso,
+        chime,
+        choo,
+        descent,
+        electronic,
+        fanfare,
+        glass,
+        gotosleep,
+        healthnotification,
+        horn,
+        ladder,
+        mailsent,
+        minuet,
+        multiwayinvitation,
+        newmail,
+        newsflash,
+        noir,
+        paymentsuccess,
+        shake,
+        sherwoodforest,
+        silence,
+        spell,
+        suspense,
+        telegraph,
+        tipties,
+        typewriters,
+        update
+    }
+}

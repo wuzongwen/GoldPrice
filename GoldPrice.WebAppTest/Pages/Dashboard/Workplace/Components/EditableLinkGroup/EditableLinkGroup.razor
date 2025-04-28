@@ -1,0 +1,12 @@
+﻿@namespace GoldPrice.WebApp.Pages.Dashboard.Workplace
+
+<div class="linkGroup">
+    @foreach (var link in Links)
+    {
+        <a href="@link.Href">@link.Title</a>
+    }
+    
+    <Button Size="@ButtonSize.Small" Type="@ButtonType.Primary" Ghost>
+        <Icon Type="plus" /> Add
+    </Button>
+</div>
