@@ -9,3 +9,4 @@ services:
       - ./data:/app/data:rw,Z
     environment:
       - ASPNETCORE_ENVIRONMENT=Production
+      - TZ=Asia/Shanghai
