@@ -1,48 +1,7 @@
 ﻿@namespace GoldPrice.WebApp.Pages
-@using System.ComponentModel.DataAnnotations;
-@using System.Text.Json;
-@using System.ComponentModel
 @using GoldPrice.WebApp.Data
 @page "/"
 
-<PageContainer Title="金价通知配置">
-    <ChildContent>
-        <Card>
-            <Form Model="@_model"
-                  Style="margin-top: 8px;"
-                  OnFinish="HandleSubmit">
-                <FormItem Label="上限阈值" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
-                    <AntDesign.InputNumber Placeholder="上限阈值" Step="0.01M" Min="0.01M" @bind-Value="@context.UpperThreshold" />
-                </FormItem>
-                <FormItem Label="下限阈值" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
-                    <AntDesign.InputNumber Placeholder="下限阈值" Step="0.01M" Min="0.01M" @bind-Value="@context.LowerThreshold" />
-                </FormItem>
-                <FormItem Label="更新间隔" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
-                    <AntDesign.InputNumber Placeholder="下限阈值" Min="1" @bind-Value="@context.UpdateInterval" />
-                </FormItem>
-                <FormItem Label="是否通知" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
-                    <AntDesign.Switch CheckedChildren="是" UnCheckedChildren="否" @bind-Value="@context.EnableNotification" />
-                </FormItem>
-                <FormItem Label="通知时段" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
-                    <TimePicker TValue="DateTime" Picker="@DatePickerType.Time" @bind-Value="@context.StartTime"  />
-                    -
-                    <TimePicker TValue="DateTime" Picker="@DatePickerType.Time" @bind-Value="@context.EndTime"   />
-                </FormItem>
-                <FormItem Label="通知地址" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
-                    <Input Placeholder="通知地址" @bind-Value="@context.NotifyPath" />
-                </FormItem>
-                <FormItem Label="通知铃声" LabelCol="_formItemLayout.LabelCol" WrapperCol="_formItemLayout.WrapperCol">
-                    <EnumSelect TEnum="Sound"/>
-                </FormItem>
-                <FormItem Label=" " Style="margin-top:32px" WrapperCol="_submitFormLayout.WrapperCol">
-                    <Button Type="@ButtonType.Primary" HtmlType="submit">
-                        保存
-                    </Button>
-                </FormItem>
-            </Form>
-        </Card>
-    </ChildContent>
-</PageContainer>
 <Modal Title="@("Title")"
        Visible="@_visible"
        OnOk="@HandleOk"
@@ -50,6 +9,67 @@
        ConfirmLoading="@_confirmLoading">
     <p>@_modalText</p>
 </Modal>
+
+<Form Model="@_model" OnFinish="HandleSubmit" Class="ant-advanced-search-form">
+    <PageContainer>
+        <ChildContent>
+            <Card Title="通知设置">
+                <Row Gutter="24">
+                    <GridCol Span="10">
+                        <FormItem Label="上限阈值">
+                            <AntDesign.InputNumber Size="@InputSize.Large" Placeholder="上限阈值" Step="0.01M" Min="0.01M" @bind-Value="@context.UpperThreshold" />
+                        </FormItem>
+                    </GridCol>
+                    <GridCol Span="10">
+                        <FormItem Label="下限阈值">
+                            <AntDesign.InputNumber Size="@InputSize.Large" Placeholder="下限阈值" Step="0.01M" Min="0.01M" @bind-Value="@context.LowerThreshold" />
+                        </FormItem>
+                    </GridCol>
+                </Row>
+                <Row Gutter="24">
+                    <GridCol Span="10">
+                        <FormItem Label="更新间隔">
+                            <AntDesign.InputNumber Size="@InputSize.Large" Placeholder="下限阈值" Min="1" @bind-Value="@context.UpdateInterval" />
+                        </FormItem>
+                    </GridCol>
+                    <GridCol Span="10">
+                        <FormItem Label="是否通知">
+                            <AntDesign.Switch Size="@InputSize.Large" CheckedChildren="是" UnCheckedChildren="否" @bind-Value="@context.EnableNotification" />
+                        </FormItem>
+                    </GridCol>
+                </Row>
+                <Row Gutter="24">
+                    <GridCol Span="24">
+                        <FormItem Label="通知时段">
+                            <TimePicker Size="@InputSize.Large" TValue="DateTime" Picker="@DatePickerType.Time" @bind-Value="@context.StartTime" />
+                            -
+                            <TimePicker Size="@InputSize.Large" TValue="DateTime" Picker="@DatePickerType.Time" @bind-Value="@context.EndTime" />
+                        </FormItem>
+                    </GridCol>
+                </Row>
+                <Row Gutter="24">
+                    <GridCol Span="24">
+                        <FormItem Label="通知地址">
+                            <Input Size="@InputSize.Large" Placeholder="通知地址" @bind-Value="@context.NotifyPath" />
+                        </FormItem>
+                    </GridCol>
+                </Row>
+                <Row Gutter="24">
+                    <GridCol Span="10">
+                        <FormItem Label="通知铃声">
+                            <EnumSelect Size="@InputSize.Large" TEnum="Sound" />
+                        </FormItem>
+                    </GridCol>
+                </Row>
+                <FormItem Style="margin-top:32px">
+                    <Button Size="@ButtonSize.Large" Type="@ButtonType.Primary" HtmlType="submit">
+                        保存
+                    </Button>
+                </FormItem>
+            </Card>
+        </ChildContent>
+    </PageContainer>
+</Form>
 @code{
     bool _visible = false;
     bool _confirmLoading = false;

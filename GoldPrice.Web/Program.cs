@@ -24,6 +24,9 @@ builder.Services.AddHostedService<PriceUpdateService>();
 // 添加 HttpClient 工厂
 builder.Services.AddHttpClient();
 
+// 添加AntDesign
+builder.Services.AddAntDesign();
+
 // Add services to the container.
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();

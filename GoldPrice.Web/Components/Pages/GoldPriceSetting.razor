@@ -2,6 +2,7 @@
 @inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject MessageService Message
 <PageTitle>金价监控</PageTitle>
 
 @if (showAlert)
@@ -45,27 +46,27 @@ else
                     <DataAnnotationsValidator />
                     <ValidationSummary class="text-danger mb-3" />
                     <div style="display:none">
-                        <InputNumber @bind-Value="settings.Id"
-                                     class="form-control" />
+                        <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.Id"
+                                                                           class="form-control" />
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">上限阈值：</label>
-                            <InputNumber @bind-Value="settings.UpperThreshold"
-                                         class="form-control" />
+                            <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.UpperThreshold"
+                                                                               class="form-control" />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">下限阈值：</label>
-                            <InputNumber @bind-Value="settings.LowerThreshold"
-                                         class="form-control" />
+                            <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.LowerThreshold"
+                                                                               class="form-control" />
                         </div>
                     </div>
 
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">更新间隔（秒）：</label>
-                            <InputNumber @bind-Value="settings.UpdateInterval"
-                                         class="form-control" />
+                            <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.UpdateInterval"
+                                                                               class="form-control" />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">是否通知：</label>
@@ -129,7 +130,10 @@ else
 
     protected override void OnInitialized()
     {
-        settings ??= DbContext.GoldPriceSettings.FirstOrDefault();
+        if (settings == null)
+        {
+            settings = DbContext.GoldPriceSettings.FirstOrDefault();
+        }
     }
 
     private async Task SaveSettings()
