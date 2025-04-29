@@ -2,7 +2,6 @@
 @inject AppDbContext DbContext
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-@inject MessageService Message
 <PageTitle>金价监控</PageTitle>
 
 @if (showAlert)
@@ -46,18 +45,18 @@ else
                     <DataAnnotationsValidator />
                     <ValidationSummary class="text-danger mb-3" />
                     <div style="display:none">
-                        <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.Id"
+                        <InputNumber @bind-Value="settings.Id"
                                                                            class="form-control" />
                     </div>
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">上限阈值：</label>
-                            <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.UpperThreshold"
+                            <InputNumber @bind-Value="settings.UpperThreshold"
                                                                                class="form-control" />
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">下限阈值：</label>
-                            <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.LowerThreshold"
+                            <InputNumber @bind-Value="settings.LowerThreshold"
                                                                                class="form-control" />
                         </div>
                     </div>
@@ -65,7 +64,7 @@ else
                     <div class="row mb-3">
                         <div class="col-md-6">
                             <label class="form-label">更新间隔（秒）：</label>
-                            <Microsoft.AspNetCore.Components.Forms.InputNumber @bind-Value="settings.UpdateInterval"
+                            <InputNumber @bind-Value="settings.UpdateInterval"
                                                                                class="form-control" />
                         </div>
                         <div class="col-md-6">
